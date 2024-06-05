@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Sluv</string>
+    <string name="kakao_app_key">7b9e4a65e4241b6e222f88eb845c4b64</string>
 </resources>
