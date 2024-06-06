@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Sluv</string>
     <string name="kakao_app_key">7b9e4a65e4241b6e222f88eb845c4b64</string>
+    <string name="default_web_client_id">924373234165-crpeudd9vlauqcav8bpfd8jv4duca6n6.apps.googleusercontent.com</string>
 </resources>

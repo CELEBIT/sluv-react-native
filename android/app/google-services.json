@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "924373234165",
+    "project_id": "celebit-sluv",
+    "storage_bucket": "celebit-sluv.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:924373234165:android:99e88c95e4919a651b70bc",
+        "android_client_info": {
+          "package_name": "com.celebit.Sluv"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "924373234165-crpeudd9vlauqcav8bpfd8jv4duca6n6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhU2oxeDo8sNqxbLQqKn8PaTpBTS7Qe90"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "924373234165-adalqufkonkljl23qk6vv4g3bnc9imfr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "924373234165-1n6b7i0rau3kv4bkquevebf3iuj04u0c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.CELEBIT.Sluv2"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:924373234165:android:faa40c132d16793b1b70bc",
+        "android_client_info": {
+          "package_name": "com.sluv"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "924373234165-2qme0tkssq5cislc9oe66arg695hej3i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sluv",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "924373234165-crpeudd9vlauqcav8bpfd8jv4duca6n6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhU2oxeDo8sNqxbLQqKn8PaTpBTS7Qe90"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "924373234165-adalqufkonkljl23qk6vv4g3bnc9imfr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "924373234165-1n6b7i0rau3kv4bkquevebf3iuj04u0c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.CELEBIT.Sluv2"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

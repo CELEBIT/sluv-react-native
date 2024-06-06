@@ -22,6 +22,9 @@ DerivedData
 *.xcuserstate
 **/.xcode.env.local
 
+# dotenv environment variable files
+.env
+
 # Android/IntelliJ
 #
 build/

@@ -1,5 +1,7 @@
 import React, {Fragment} from 'react';
+
 import {
+  Alert,
   Image,
   Pressable,
   SafeAreaView,
@@ -9,6 +11,8 @@ import {
   View,
 } from 'react-native';
 import * as KakaoLogin from '@react-native-seoul/kakao-login';
+import auth from '@react-native-firebase/auth';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import LoginService from '../api/Login/LoginServices';
 import {
   setJwtToken,
@@ -26,6 +30,7 @@ type HomeScreenNavigationProp = CompositeNavigationProp<
 const Home = () => {
   const socialLogin = new LoginService();
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  // 카카오 로그인
   const signInWithKakao = async (): Promise<void> => {
     try {
       const result = await KakaoLogin.login();
@@ -43,8 +48,56 @@ const Home = () => {
         });
       }
     } catch (err) {
+      loginError();
       console.error('login err', err);
     }
+  };
+  // 구글 로그인
+  const signInWithGoogle = async (): Promise<void> => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      // firebase 로그인 확인 및 GA용로그인 Start
+      const googleCredential = auth.GoogleAuthProvider.credential(
+        userInfo.idToken,
+      );
+      await auth().signInWithCredential(googleCredential);
+      //firebase 로그인 확인 및 GA용로그인 End
+
+      // SLUV 회원가입
+      try {
+        const data = {
+          accessToken: userInfo.idToken ?? '',
+          snsType: 'GOOGLE',
+        };
+        const response = await socialLogin.socialLogin(data);
+        const loginData = response.result;
+        if (loginData) {
+          setJwtToken(loginData.token);
+          setUserStatus(loginData.userStatus);
+          navigation.navigate('WebViewPage', {
+            token: loginData.token,
+            userStatus: loginData.userStatus,
+          });
+        }
+      } catch (err) {
+        loginError();
+        console.log(err);
+      }
+    } catch (err) {
+      console.error('Google login err', err);
+    }
+  };
+  const loginError = () => {
+    Alert.alert(
+      '로그인 에러',
+      '로그인 중 문제가 발생했어요. 잠시 후 다시 시도해 주세요',
+      [{text: '닫기', onPress: () => {}, style: 'cancel'}],
+      {
+        cancelable: true,
+        onDismiss: () => {},
+      },
+    );
   };
   return (
     <Fragment>
@@ -72,7 +125,7 @@ const Home = () => {
             </Pressable>
             <Pressable
               onPress={() => {
-                signInWithKakao();
+                signInWithGoogle();
               }}>
               <Image
                 source={require('../assets/SocialLogin/google.png')}
