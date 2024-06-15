@@ -6,7 +6,7 @@ import {REACT_APP_MAIN_APP_API} from '@env';
 export default class LoginService {
   auth: string;
   constructor() {
-    this.auth = '/app/auth';
+    this.auth = 'app/auth/auto-login';
   }
 
   async socialLogin(data: SocialLoginBody) {
@@ -30,9 +30,8 @@ export default class LoginService {
 
   async autoLogin() {
     const data: ResponseType<SocialLoginResult> = await request.get(
-      `${this.auth}/auto-login`,
+      `${this.auth}`,
     );
-
-    return data.result;
+    return data;
   }
 }

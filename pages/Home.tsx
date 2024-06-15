@@ -1,4 +1,4 @@
-import React, {Fragment} from 'react';
+import React, {Fragment, useEffect, useState} from 'react';
 
 import {
   Alert,
@@ -17,6 +17,10 @@ import LoginService from '../api/Login/LoginServices';
 import {
   setJwtToken,
   setUserStatus,
+  setLoginMethod,
+  getLoginMethod,
+  getJwtToken,
+  getUserStatus,
 } from '../services/localStorage/localStorage';
 import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -30,6 +34,8 @@ type HomeScreenNavigationProp = CompositeNavigationProp<
 const Home = () => {
   const socialLogin = new LoginService();
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const [recentMethod, setRecentMethod] = useState<string | null>(null);
+  console.log(recentMethod);
   // 카카오 로그인
   const signInWithKakao = async (): Promise<void> => {
     try {
@@ -42,6 +48,7 @@ const Home = () => {
       if (loginData) {
         setJwtToken(loginData.token);
         setUserStatus(loginData.userStatus);
+        setLoginMethod('KAKAO');
         navigation.navigate('WebViewPage', {
           token: loginData.token,
           userStatus: loginData.userStatus,
@@ -75,6 +82,7 @@ const Home = () => {
         if (loginData) {
           setJwtToken(loginData.token);
           setUserStatus(loginData.userStatus);
+          setLoginMethod('GOOGLE');
           navigation.navigate('WebViewPage', {
             token: loginData.token,
             userStatus: loginData.userStatus,
@@ -88,6 +96,21 @@ const Home = () => {
       console.error('Google login err', err);
     }
   };
+
+  const autoLogin = async (): Promise<void> => {
+    const response = await socialLogin.autoLogin();
+    if (response.isSuccess) {
+      const accessToken = await getJwtToken();
+
+      const userStatus = await getUserStatus();
+      if (accessToken !== null && userStatus !== null) {
+        navigation.navigate('WebViewPage', {
+          token: accessToken,
+          userStatus: userStatus,
+        });
+      }
+    }
+  };
   const loginError = () => {
     Alert.alert(
       '로그인 에러',
@@ -99,6 +122,19 @@ const Home = () => {
       },
     );
   };
+
+  useEffect(() => {
+    const checkLoginMethod = async () => {
+      const method = await getLoginMethod();
+      if (method) {
+        setRecentMethod(method);
+        await autoLogin();
+      }
+    };
+
+    checkLoginMethod();
+  });
+
   return (
     <Fragment>
       <StatusBar backgroundColor="white" barStyle="dark-content" />

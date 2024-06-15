@@ -12,66 +12,48 @@ const setItem = async <T>(key: LocalStorageKey, items: T) => {
 };
 
 // 스토리지에서 아이템을 가져옴
-const getItemOrNull = async <T>(key: LocalStorageKey): Promise<T | null> => {
+const getItemOrNull = async (key: LocalStorageKey): Promise<string | null> => {
   try {
     const data = await EncryptedStorage.getItem(key);
-    return data ? (JSON.parse(data) as T) : null;
+    return data ? data.replace(/"/g, '') : null;
   } catch (error) {
     console.log('localstorage error: ', error);
     return null;
   }
 };
 
-// 카카오 토큰 스토리지에 저장
-export const setKakaoToken = async (token: String) => {
-  await setItem<String>(LocalStorageKey.KakaoAccessToken, token);
+// JWT 토큰 저장
+export const setJwtToken = async (token: string) => {
+  await setItem<string>(LocalStorageKey.JWT_TOKEN, token);
 };
 
-// JWT 토큰 스토리지에 저장
-export const setJwtToken = async (token: String) => {
-  await setItem<String>(LocalStorageKey.JWT_TOKEN, token);
+// UserStatus 저장
+export const setUserStatus = async (UserStatus: string) => {
+  await setItem<string>(LocalStorageKey.UserStatus, UserStatus);
 };
 
-// UserStatus 스토리지에 저장
-export const setUserStatus = async (UserStatus: String) => {
-  await setItem<String>(LocalStorageKey.UserStatus, UserStatus);
-};
-
-// 카카오 토큰 값 꺼내기
-export const getKakaoToken = async (): Promise<String | null> => {
-  const refresh = await getItemOrNull<String>(LocalStorageKey.KakaoAccessToken);
-  return refresh;
+// 로그인 방법 저장
+export const setLoginMethod = async (value: string) => {
+  await setItem<string>(LocalStorageKey.LoginMethod, value);
 };
 
 // JWT 토큰 값 꺼내기
-export const getJwtToken = async (): Promise<String | null> => {
-  const jwtToken = await getItemOrNull<String>(LocalStorageKey.JWT_TOKEN);
-  return jwtToken;
+export const getJwtToken = async (): Promise<string | null> => {
+  return await getItemOrNull(LocalStorageKey.JWT_TOKEN);
 };
 
 // UserStatus 값 꺼내기
-export const getUserStatus = async (): Promise<String | null> => {
-  const UserStatus = await getItemOrNull<String>(LocalStorageKey.UserStatus);
+export const getUserStatus = async (): Promise<string | null> => {
+  const UserStatus = await getItemOrNull(LocalStorageKey.UserStatus);
   return UserStatus;
 };
 
-// 두개 동시에 저장
-export const setTokens = async (refresh: String, access: String) => {
-  await setKakaoToken(refresh);
-  await setJwtToken(access);
+// 회원가입을 해야 할 최초 유저 여부 가져옴
+export const getLoginMethod = async (): Promise<string> => {
+  return (await getItemOrNull(LocalStorageKey.LoginMethod)) ?? '';
 };
 
 // 로그아웃 혹은 탈퇴 토큰 제거
 export const removeTokens = async () => {
   await EncryptedStorage.clear();
-};
-
-// 회원가입을 해야 할 최초 유저 여부 가져옴
-export const getLoginWith = async (): Promise<String> => {
-  return (await getItemOrNull<String>(LocalStorageKey.LoginWith)) ?? '';
-};
-
-// 최초 유저 여부 저장
-export const setLoginWith = async (value: String) => {
-  await setItem<String>(LocalStorageKey.LoginWith, value);
 };

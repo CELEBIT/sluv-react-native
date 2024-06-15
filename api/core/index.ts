@@ -18,9 +18,9 @@ const request: AxiosInstance = axios.create({
 
 // 요청 인터셉터
 request.interceptors.request.use(
-  config => {
+  async config => {
     // 요청 성공 직전 호출됨
-    const accessToken = getJwtToken();
+    const accessToken = await getJwtToken();
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }

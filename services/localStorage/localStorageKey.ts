@@ -1,7 +1,6 @@
 const enum LocalStorageKey {
   JWT_TOKEN = 'JwtToken',
-  KakaoAccessToken = 'KakaoAccessToken',
-  LoginWith = 'LoginWith',
+  LoginMethod = 'LoginMethod',
   UserStatus = 'UserStatus',
 }
 export default LocalStorageKey;
