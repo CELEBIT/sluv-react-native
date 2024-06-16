@@ -101,7 +101,6 @@ const Home = () => {
     const response = await socialLogin.autoLogin();
     if (response.isSuccess) {
       const accessToken = await getJwtToken();
-
       const userStatus = await getUserStatus();
       if (accessToken !== null && userStatus !== null) {
         navigation.navigate('WebViewPage', {
@@ -131,7 +130,6 @@ const Home = () => {
         await autoLogin();
       }
     };
-
     checkLoginMethod();
   });
 
@@ -149,6 +147,27 @@ const Home = () => {
             <Text style={S.SubText}>나누고 싶은 셀럽의 정보를</Text>
             <Text style={S.SubText}>우리만의 아지트에서!</Text>
           </View>
+          {recentMethod === null ? (
+            <View style={S.Bubble}>
+              <Text style={S.BubbleText}>SNS 계정으로 간편하게 가입해요!</Text>
+              <View style={[S.Pointer, S.DefaultBubble]}>
+                <View style={S.PointerTriangle} />
+              </View>
+            </View>
+          ) : (
+            <View style={S.Bubble}>
+              <Text style={S.BubbleText}>최근 사용한 로그인 방법이에요</Text>
+              {recentMethod === 'KAKAO' ? (
+                <View style={[S.Pointer, S.KakaoBubble]}>
+                  <View style={S.PointerTriangle} />
+                </View>
+              ) : (
+                <View style={[S.Pointer, S.GoogleBubble]}>
+                  <View style={S.PointerTriangle} />
+                </View>
+              )}
+            </View>
+          )}
           <View style={S.Buttons}>
             <Pressable
               onPress={() => {
@@ -213,6 +232,44 @@ const S = StyleSheet.create({
     lineHeight: 21.48,
     textAlign: 'center',
     color: '#7B8894',
+  },
+  Bubble: {
+    display: 'flex',
+    backgroundColor: '#6C47FF',
+    borderRadius: 8,
+    padding: 12,
+    top: 170,
+  },
+  DefaultBubble: {
+    left: 80,
+  },
+  KakaoBubble: {
+    left: 35,
+  },
+  GoogleBubble: {
+    right: 35,
+  },
+  Pointer: {
+    position: 'absolute',
+    bottom: -8,
+  },
+  PointerTriangle: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 10,
+    borderLeftColor: 'transparent',
+    borderRightWidth: 10,
+    borderRightColor: 'transparent',
+    borderTopWidth: 10,
+    borderTopColor: '#6C47FF',
+  },
+  BubbleText: {
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 13,
+    lineHeight: 15.51,
+    textAlign: 'center',
+    color: '#FFFFFF',
+    fontWeight: '400',
   },
   Buttons: {
     display: 'flex',
