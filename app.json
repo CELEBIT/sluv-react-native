@@ -1,4 +1,14 @@
 {
   "name": "Sluv",
-  "displayName": "Sluv"
+  "displayName": "Sluv",
+  "expo": {
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "custom photos permission"
+        }
+      ]
+    ]
+  }
 }

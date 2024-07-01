@@ -136,7 +136,7 @@ const Home = () => {
   return (
     <Fragment>
       <StatusBar backgroundColor="white" barStyle="dark-content" />
-      <SafeAreaView style={S.container}>
+      <SafeAreaView style={S.Container}>
         <View style={S.Layout}>
           <View style={S.Info}>
             <Image
@@ -147,46 +147,50 @@ const Home = () => {
             <Text style={S.SubText}>나누고 싶은 셀럽의 정보를</Text>
             <Text style={S.SubText}>우리만의 아지트에서!</Text>
           </View>
-          {recentMethod === null ? (
-            <View style={S.Bubble}>
-              <Text style={S.BubbleText}>SNS 계정으로 간편하게 가입해요!</Text>
-              <View style={[S.Pointer, S.DefaultBubble]}>
-                <View style={S.PointerTriangle} />
+          <View style={S.BottomContainer}>
+            {recentMethod === null ? (
+              <View style={S.Bubble}>
+                <Text style={S.BubbleText}>
+                  SNS 계정으로 간편하게 가입해요!
+                </Text>
+                <View style={[S.Pointer, S.DefaultBubble]}>
+                  <View style={S.PointerTriangle} />
+                </View>
               </View>
+            ) : (
+              <View style={S.Bubble}>
+                <Text style={S.BubbleText}>최근 사용한 로그인 방법이에요</Text>
+                {recentMethod === 'KAKAO' ? (
+                  <View style={[S.Pointer, S.KakaoBubble]}>
+                    <View style={S.PointerTriangle} />
+                  </View>
+                ) : (
+                  <View style={[S.Pointer, S.GoogleBubble]}>
+                    <View style={S.PointerTriangle} />
+                  </View>
+                )}
+              </View>
+            )}
+            <View style={S.Buttons}>
+              <Pressable
+                onPress={() => {
+                  signInWithKakao();
+                }}>
+                <Image
+                  source={require('../assets/SocialLogin/kakao.png')}
+                  style={{width: 60, height: 60}}
+                />
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  signInWithGoogle();
+                }}>
+                <Image
+                  source={require('../assets/SocialLogin/google.png')}
+                  style={{width: 60, height: 60}}
+                />
+              </Pressable>
             </View>
-          ) : (
-            <View style={S.Bubble}>
-              <Text style={S.BubbleText}>최근 사용한 로그인 방법이에요</Text>
-              {recentMethod === 'KAKAO' ? (
-                <View style={[S.Pointer, S.KakaoBubble]}>
-                  <View style={S.PointerTriangle} />
-                </View>
-              ) : (
-                <View style={[S.Pointer, S.GoogleBubble]}>
-                  <View style={S.PointerTriangle} />
-                </View>
-              )}
-            </View>
-          )}
-          <View style={S.Buttons}>
-            <Pressable
-              onPress={() => {
-                signInWithKakao();
-              }}>
-              <Image
-                source={require('../assets/SocialLogin/kakao.png')}
-                style={{width: 60, height: 60}}
-              />
-            </Pressable>
-            <Pressable
-              onPress={() => {
-                signInWithGoogle();
-              }}>
-              <Image
-                source={require('../assets/SocialLogin/google.png')}
-                style={{width: 60, height: 60}}
-              />
-            </Pressable>
           </View>
         </View>
       </SafeAreaView>
@@ -195,27 +199,27 @@ const Home = () => {
 };
 
 const S = StyleSheet.create({
-  container: {
-    flex: 1,
+  Container: {
+    // flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
     backgroundColor: 'white',
   },
   Layout: {
-    flex: 1,
+    // flex: 1,
+    display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
     width: '100%',
     height: '100%',
-    backgroundColor: 'white',
+    paddingTop: 200,
+    justifyContent: 'space-between',
+    paddingBottom: 100,
   },
   Info: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    top: 300,
     alignItems: 'center',
-    width: '100%',
-    height: '100%',
   },
   MainText: {
     marginTop: 32,
@@ -235,19 +239,20 @@ const S = StyleSheet.create({
   },
   Bubble: {
     display: 'flex',
+    position: 'relative',
     backgroundColor: '#6C47FF',
     borderRadius: 8,
     padding: 12,
-    top: 170,
+    // top: 170,
   },
   DefaultBubble: {
-    left: 80,
+    left: '24%',
   },
   KakaoBubble: {
-    left: 35,
+    left: '13%',
   },
   GoogleBubble: {
-    right: 35,
+    right: '13%',
   },
   Pointer: {
     position: 'absolute',
@@ -271,15 +276,16 @@ const S = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '400',
   },
+  BottomContainer: {
+    alignItems: 'center',
+    gap: 20,
+  },
   Buttons: {
-    display: 'flex',
     flexDirection: 'row',
     gap: 20,
-    bottom: 150,
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    height: '100%',
   },
   red: {
     color: 'red',
