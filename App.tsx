@@ -17,10 +17,10 @@ const App: React.FC = () => {
       forceCodeForRefreshToken: true,
     });
   };
-
   useEffect(() => {
     googleSigninConfigure();
   }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">

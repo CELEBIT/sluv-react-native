@@ -1,4 +1,4 @@
-import axios, {AxiosInstance} from 'axios';
+import axios, {AxiosError, AxiosInstance} from 'axios';
 import {getJwtToken} from '../../services/localStorage/localStorage';
 import {REACT_APP_MAIN_APP_API} from '@env';
 
@@ -18,8 +18,9 @@ request.interceptors.request.use(
     }
     return config;
   },
-  error => {
-    console.log(error);
+  (error: AxiosError) => {
+    // 요청 실패 시 처리
+    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   },
 );

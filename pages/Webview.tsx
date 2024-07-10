@@ -1,12 +1,15 @@
-import React, {useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {WebView, WebViewMessageEvent} from 'react-native-webview';
-import {RouteProp} from '@react-navigation/native';
+import {RouteProp, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from './page.type';
 import {REACT_APP_WEB} from '@env';
-import {View} from 'react-native';
+import {View, BackHandler, ToastAndroid} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import * as ExpoImagePicker from 'expo-image-picker';
+import {HomeScreenNavigationProp} from './Home';
+import {removeKey, removeTokens} from '../services/localStorage/localStorage';
+import LocalStorageKey from '../services/localStorage/localStorageKey';
 
 // import RNFS from 'react-native-fs';
 
@@ -22,6 +25,7 @@ type Props = {
 };
 
 const WebViewPage: React.FC<Props> = ({route}) => {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const {token, userStatus} = route.params;
   const injectedJavaScript = `
     localStorage.setItem("accessToken", "${token}");
@@ -35,8 +39,9 @@ const WebViewPage: React.FC<Props> = ({route}) => {
   const handleWebViewMessage = (event: WebViewMessageEvent) => {
     const {data} = event.nativeEvent;
     const message = JSON.parse(data);
+
+    console.log('message', message);
     if (message.type === 'openGallery') {
-      console.log(message);
       const result: any = [];
       ExpoImagePicker.launchImageLibraryAsync({
         mediaTypes: ExpoImagePicker.MediaTypeOptions.Images,
@@ -67,7 +72,57 @@ const WebViewPage: React.FC<Props> = ({route}) => {
         }
       });
     }
+    if (message.type === 'logout') {
+      console.log(message);
+      removeKey(LocalStorageKey.JWT_TOKEN);
+      removeKey(LocalStorageKey.UserStatus);
+      navigation.navigate('Home');
+    }
+    if (message.type === 'withdraw') {
+      console.log(message);
+      removeTokens();
+      navigation.navigate('Home');
+    }
   };
+
+  const [canGoBack, setCanGoBack] = useState<boolean>(false);
+
+  const handleNavigationStateChange = (navState: any) => {
+    if (canGoBack && navState.canGoBack === false) {
+      showToastWithGravityAndOffset();
+    }
+    setCanGoBack(navState.canGoBack);
+  };
+
+  const showToastWithGravityAndOffset = () => {
+    ToastAndroid.showWithGravityAndOffset(
+      '한번 더 누르면 앱이 종료됩니다.',
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM,
+      25,
+      50,
+    );
+  };
+
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (canGoBack) {
+        webViewRef.current?.goBack();
+        return true;
+      } else {
+        BackHandler.exitApp();
+        return true;
+      }
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackPress,
+    );
+
+    return () => backHandler.remove();
+  }, [canGoBack]);
+
   return (
     <View style={{flex: 1}}>
       <WebView
@@ -77,6 +132,7 @@ const WebViewPage: React.FC<Props> = ({route}) => {
         style={{flex: 1}}
         scrollEnabled={false}
         onMessage={handleWebViewMessage}
+        onNavigationStateChange={handleNavigationStateChange}
       />
     </View>
   );

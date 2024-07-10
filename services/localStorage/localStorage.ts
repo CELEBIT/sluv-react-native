@@ -53,6 +53,15 @@ export const getLoginMethod = async (): Promise<string> => {
   return (await getItemOrNull(LocalStorageKey.LoginMethod)) ?? '';
 };
 
+// 특정 키의 값만 삭제
+export const removeKey = async (key: LocalStorageKey) => {
+  try {
+    await EncryptedStorage.removeItem(key);
+  } catch (error) {
+    console.error('localstorage error: ', error);
+  }
+};
+
 // 로그아웃 혹은 탈퇴 토큰 제거
 export const removeTokens = async () => {
   await EncryptedStorage.clear();

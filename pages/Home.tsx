@@ -1,7 +1,7 @@
 import React, {Fragment, useEffect, useState} from 'react';
 
 import {
-  Alert,
+  // Alert,
   Image,
   Pressable,
   SafeAreaView,
@@ -26,7 +26,7 @@ import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from './page.type';
 
-type HomeScreenNavigationProp = CompositeNavigationProp<
+export type HomeScreenNavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<RootStackParamList, 'Home'>,
   NativeStackNavigationProp<RootStackParamList>
 >;
@@ -35,11 +35,12 @@ const Home = () => {
   const socialLogin = new LoginService();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [recentMethod, setRecentMethod] = useState<string | null>(null);
-  console.log(recentMethod);
+
   // 카카오 로그인
   const signInWithKakao = async (): Promise<void> => {
     try {
       const result = await KakaoLogin.login();
+      console.log(result);
       const response = await socialLogin.socialLogin({
         accessToken: result.accessToken,
         snsType: 'KAKAO',
@@ -49,14 +50,15 @@ const Home = () => {
         setJwtToken(loginData.token);
         setUserStatus(loginData.userStatus);
         setLoginMethod('KAKAO');
+        setRecentMethod('KAKAO');
         navigation.navigate('WebViewPage', {
           token: loginData.token,
           userStatus: loginData.userStatus,
         });
       }
     } catch (err) {
-      loginError();
-      console.error('login err', err);
+      // loginError();
+      console.log(err);
     }
   };
   // 구글 로그인
@@ -83,13 +85,13 @@ const Home = () => {
           setJwtToken(loginData.token);
           setUserStatus(loginData.userStatus);
           setLoginMethod('GOOGLE');
+          setRecentMethod('GOOGLE');
           navigation.navigate('WebViewPage', {
             token: loginData.token,
             userStatus: loginData.userStatus,
           });
         }
       } catch (err) {
-        loginError();
         console.log(err);
       }
     } catch (err) {
@@ -109,17 +111,6 @@ const Home = () => {
         });
       }
     }
-  };
-  const loginError = () => {
-    Alert.alert(
-      '로그인 에러',
-      '로그인 중 문제가 발생했어요. 잠시 후 다시 시도해 주세요',
-      [{text: '닫기', onPress: () => {}, style: 'cancel'}],
-      {
-        cancelable: true,
-        onDismiss: () => {},
-      },
-    );
   };
 
   useEffect(() => {
