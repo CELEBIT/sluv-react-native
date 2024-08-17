@@ -27,6 +27,11 @@ export const setJwtToken = async (token: string) => {
   await setItem<string>(LocalStorageKey.JWT_TOKEN, token);
 };
 
+// FCM 토큰 저장
+export const setFCMToken = async (token: string) => {
+  await setItem<string>(LocalStorageKey.FCM_TOKEN, token);
+};
+
 // UserStatus 저장
 export const setUserStatus = async (UserStatus: string) => {
   await setItem<string>(LocalStorageKey.UserStatus, UserStatus);
@@ -40,6 +45,11 @@ export const setLoginMethod = async (value: string) => {
 // JWT 토큰 값 꺼내기
 export const getJwtToken = async (): Promise<string | null> => {
   return await getItemOrNull(LocalStorageKey.JWT_TOKEN);
+};
+
+// JWT 토큰 값 꺼내기
+export const getFCMToken = async (): Promise<string | null> => {
+  return await getItemOrNull(LocalStorageKey.FCM_TOKEN);
 };
 
 // UserStatus 값 꺼내기

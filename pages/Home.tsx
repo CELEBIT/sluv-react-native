@@ -25,6 +25,7 @@ import {
 import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from './page.type';
+import messaging from '@react-native-firebase/messaging';
 
 export type HomeScreenNavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<RootStackParamList, 'Home'>,
@@ -36,14 +37,23 @@ const Home = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [recentMethod, setRecentMethod] = useState<string | null>(null);
 
+  // Fcm 토큰
+  async function getFCMToken() {
+    const token = await messaging().getToken();
+    console.log('fcm token : ', token);
+    return token;
+  }
+
   // 카카오 로그인
   const signInWithKakao = async (): Promise<void> => {
     try {
       const result = await KakaoLogin.login();
       console.log(result);
+      const fcmToken = await getFCMToken();
       const response = await socialLogin.socialLogin({
         accessToken: result.accessToken,
         snsType: 'KAKAO',
+        fcm: fcmToken,
       });
       const loginData = response.result;
       if (loginData) {
@@ -75,9 +85,11 @@ const Home = () => {
 
       // SLUV 회원가입
       try {
+        const fcmToken = await getFCMToken();
         const data = {
           accessToken: userInfo.idToken ?? '',
           snsType: 'GOOGLE',
+          fcm: fcmToken,
         };
         const response = await socialLogin.socialLogin(data);
         const loginData = response.result;
@@ -121,6 +133,7 @@ const Home = () => {
         await autoLogin();
       }
     };
+
     checkLoginMethod();
   });
 
