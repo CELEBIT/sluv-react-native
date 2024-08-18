@@ -26,7 +26,9 @@ async function displayNotification(remoteMessage) {
     body: remoteMessage.notification.body,
     android: {
       channelId: '스럽', // 채널 ID 설정
-      smallIcon: 'ic_launcher', // 아이콘 설정
+      smallIcon: 'ic_stat_app_icon_square', // 아이콘 설정
+      // largeIcon: 'ic_launcher_round',
+      color: '#6C47FF',
       pressAction: {
         id: '스럽',
       },
