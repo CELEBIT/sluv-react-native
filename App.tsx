@@ -7,7 +7,9 @@ import WebViewPage from './pages/Webview';
 import {RootStackParamList} from './pages/page.type';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {REACT_APP_GOOGLE_CI} from '@env';
-import notifee from '@notifee/react-native';
+// import notifee from '@notifee/react-native';
+import messaging from '@react-native-firebase/messaging';
+import pushNoti from './pushNoti';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -38,16 +40,14 @@ const App: React.FC = () => {
     }
   }
 
-  async function createNotificationChannel() {
-    await notifee.createChannel({
-      id: '스럽',
-      name: '스럽',
-    });
-  }
-
   useEffect(() => {
     requestNotificationPermission();
-    createNotificationChannel();
+    // createNotificationChannel();
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log(remoteMessage);
+      pushNoti.displayNoti(remoteMessage); // 위에서 작성한 함수로 넘겨준다
+    });
+    return unsubscribe;
   }, []);
 
   return (
