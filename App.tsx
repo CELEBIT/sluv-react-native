@@ -8,10 +8,12 @@ import {RootStackParamList} from './pages/page.type';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {REACT_APP_GOOGLE_CI} from '@env';
 // import notifee from '@notifee/react-native';
-import messaging from '@react-native-firebase/messaging';
-import pushNoti from './pushNoti';
+// import messaging from '@react-native-firebase/messaging';
+
+// import pushNoti from './pushNoti';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+// 백그라운드 및 종료 상태에서 알림 수신
 
 const App: React.FC = () => {
   const googleSigninConfigure = () => {
@@ -43,11 +45,11 @@ const App: React.FC = () => {
   useEffect(() => {
     requestNotificationPermission();
     // createNotificationChannel();
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log(remoteMessage);
-      pushNoti.displayNoti(remoteMessage); // 위에서 작성한 함수로 넘겨준다
-    });
-    return unsubscribe;
+    // const unsubscribe = messaging().onMessage(async remoteMessage => {
+    //   console.log(remoteMessage);
+    //   pushNoti.displayNoti(remoteMessage); // 위에서 작성한 함수로 넘겨준다
+    // });
+    // return unsubscribe;
   }, []);
 
   return (

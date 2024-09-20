@@ -10,7 +10,10 @@ import * as ExpoImagePicker from 'expo-image-picker';
 import {HomeScreenNavigationProp} from './Home';
 import {removeKey, removeTokens} from '../services/localStorage/localStorage';
 import LocalStorageKey from '../services/localStorage/localStorageKey';
+import messaging from '@react-native-firebase/messaging';
+import notifee, {EventType} from '@notifee/react-native';
 
+import pushNoti, {convertPushUrl} from '../utils/pushNoti';
 // import RNFS from 'react-native-fs';
 
 type WebViewPageRouteProp = RouteProp<RootStackParamList, 'WebViewPage'>;
@@ -26,12 +29,59 @@ type Props = {
 
 const WebViewPage: React.FC<Props> = ({route}) => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const {token, userStatus} = route.params;
+  const {token, userStatus, url} = route.params;
+  const [webviewUrl, setWebviewUrl] = useState(REACT_APP_WEB);
+
   const injectedJavaScript = `
     localStorage.setItem("accessToken", "${token}");
     localStorage.setItem("userStatus", "${userStatus}");
     true;
   `;
+
+  // useEffect(() => {
+  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
+  //     console.log(remoteMessage);
+  //     pushNoti.displayNoti(remoteMessage); // 위에서 작성한 함수로 넘겨준다
+  //   });
+  //   return unsubscribe;
+  // }, []);
+
+  useEffect(() => {
+    // Foreground에서 메시지 수신
+    const unsubscribeOnMessage = messaging().onMessage(remoteMessage => {
+      console.log('Foreground message:', remoteMessage);
+      // 알림 표시 (자신의 알림 표시 로직으로 변경)
+      pushNoti.displayNoti(remoteMessage);
+    });
+
+    const unsubscribeOnNotificationOpenedApp =
+      messaging().onNotificationOpenedApp(async remoteMessage => {
+        const {data} = remoteMessage;
+        console.log('Notification opened:', data);
+
+        if (data) {
+          setWebviewUrl(`${REACT_APP_WEB}${convertPushUrl(data)}`);
+        }
+      });
+
+    return () => {
+      unsubscribeOnMessage();
+      unsubscribeOnNotificationOpenedApp();
+    };
+  }, []);
+
+  useEffect(() => {
+    return notifee.onForegroundEvent(({type, detail}) => {
+      switch (type) {
+        case EventType.DISMISSED:
+          console.log('User dismissed notification', detail.notification);
+          break;
+        case EventType.PRESS:
+          console.log('User pressed notification', detail.notification);
+          break;
+      }
+    });
+  }, []);
 
   // const [selectedImage, setSelectedImage] = useState(null);
   const webViewRef = useRef<WebView>(null);
@@ -127,7 +177,7 @@ const WebViewPage: React.FC<Props> = ({route}) => {
     <View style={{flex: 1}}>
       <WebView
         ref={webViewRef}
-        source={{uri: REACT_APP_WEB}}
+        source={{uri: webviewUrl}}
         injectedJavaScript={injectedJavaScript}
         style={{flex: 1}}
         scrollEnabled={false}

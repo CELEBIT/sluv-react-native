@@ -14,6 +14,7 @@ import * as KakaoLogin from '@react-native-seoul/kakao-login';
 import auth from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import LoginService from '../api/Login/LoginServices';
+import {REACT_APP_WEB} from '@env';
 import {
   setJwtToken,
   setUserStatus,
@@ -21,22 +22,31 @@ import {
   getLoginMethod,
   getJwtToken,
   getUserStatus,
+  // setFCMData,
 } from '../services/localStorage/localStorage';
 import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from './page.type';
 import messaging from '@react-native-firebase/messaging';
+import {convertPushUrl} from '../utils/pushNoti';
 
 export type HomeScreenNavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<RootStackParamList, 'Home'>,
   NativeStackNavigationProp<RootStackParamList>
 >;
 
+let backgroundURL = '';
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+  console.log('🚀 setBackgroundMessageHandler:', remoteMessage);
+  if (remoteMessage?.data) {
+    backgroundURL = `${REACT_APP_WEB}${convertPushUrl(remoteMessage)}`;
+  }
+});
 const Home = () => {
   const socialLogin = new LoginService();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [recentMethod, setRecentMethod] = useState<string | null>(null);
-
+  const [url, setUrl] = useState(backgroundURL ?? '');
   // Fcm 토큰
   async function getFCMToken() {
     const token = await messaging().getToken();
@@ -64,6 +74,7 @@ const Home = () => {
         navigation.navigate('WebViewPage', {
           token: loginData.token,
           userStatus: loginData.userStatus,
+          url: url ?? undefined,
         });
       }
     } catch (err) {
@@ -101,6 +112,7 @@ const Home = () => {
           navigation.navigate('WebViewPage', {
             token: loginData.token,
             userStatus: loginData.userStatus,
+            url: url ?? undefined,
           });
         }
       } catch (err) {
@@ -120,6 +132,7 @@ const Home = () => {
         navigation.navigate('WebViewPage', {
           token: accessToken,
           userStatus: userStatus,
+          url: url ?? undefined,
         });
       }
     }

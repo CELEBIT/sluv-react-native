@@ -3,5 +3,6 @@ const enum LocalStorageKey {
   LoginMethod = 'LoginMethod',
   UserStatus = 'UserStatus',
   FCM_TOKEN = 'FCM_TOKEN',
+  FCM_DATA = 'FCM_DATA',
 }
 export default LocalStorageKey;

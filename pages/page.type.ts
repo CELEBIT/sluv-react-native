@@ -4,6 +4,7 @@ export type RootStackParamList = {
 };
 
 export type WebViewPropsType = {
-  token: String;
-  userStatus: String;
+  token: string;
+  userStatus: string;
+  url?: string;
 };
