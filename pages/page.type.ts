@@ -1,5 +1,5 @@
 export type RootStackParamList = {
-  Home: undefined;
+  Home: {notificationUrl?: string};
   WebViewPage: WebViewPropsType;
 };
 

@@ -1,0 +1,7 @@
+{
+  "android": {
+    "channelId": "백그라운드에서 푸시 알림: {\"collapseKey\": \"com.sluv\", \"data\": {\"itemId\": \"1\", \"type\": \"item\"}, \"from\": \"924373234165\", \"messageId\": \"0:1723980617656363%d8a66b07d8a66b07\", \"notification\": {\"android\": {}, \"body\": \"zz 님이 회원님이 올린 아이템 정보를 좋아해요\", \"title\": \"[스럽]\"}, \"sentTime\": 1723980617644, \"ttl\": 2419200}"
+  },
+  "body": "test 입니다.",
+  "title": "RN test"
+}

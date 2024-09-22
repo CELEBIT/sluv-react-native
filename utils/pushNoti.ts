@@ -1,4 +1,5 @@
 import notifee, {AndroidImportance} from '@notifee/react-native';
+import {REACT_APP_WEB} from '@env';
 
 const displayNotification = async (message: any) => {
   await notifee.createChannel({
@@ -6,7 +7,6 @@ const displayNotification = async (message: any) => {
     name: '스럽',
     importance: AndroidImportance.HIGH,
   });
-
   await notifee.displayNotification({
     title: message.notification.title,
     body: message.notification.body,
@@ -18,6 +18,7 @@ const displayNotification = async (message: any) => {
         id: '스럽',
       },
     },
+    data: message.data,
   });
 };
 
@@ -25,28 +26,27 @@ export default {
   displayNoti: (remoteMessage: any) => displayNotification(remoteMessage),
 };
 
-export const convertPushUrl = (remoteMessage: any) => {
-  switch (remoteMessage.data.type) {
+export const convertPushUrl = (data: any) => {
+  switch (data.type) {
     case 'item': {
-      console.log('break');
-      return `item/detail/${remoteMessage.data.itemId}`;
+      return `${REACT_APP_WEB}item/detail/${data.itemId}`;
     }
     case 'community': {
-      return `community/detail/${remoteMessage.data.communityId}`;
+      return `${REACT_APP_WEB}community/detail/${data.communityId}`;
     }
     case 'user': {
-      return `user/${remoteMessage.data.userId}`;
+      return `${REACT_APP_WEB}user/${data.userId}`;
     }
     case 'comment': {
-      return `community/detail/${remoteMessage.data.communityId}`;
+      return `${REACT_APP_WEB}community/detail/${data.communityId}`;
     }
     case 'report': {
-      return `item/detail/${remoteMessage.data.itemId}`;
+      return `${REACT_APP_WEB}item/detail/${data.itemId}`;
     }
     case 'edit': {
-      return `item/detail/${remoteMessage.data.itemId}`;
+      return `${REACT_APP_WEB}item/detail/${data.itemId}`;
     }
     default:
-      return '';
+      return REACT_APP_WEB;
   }
 };

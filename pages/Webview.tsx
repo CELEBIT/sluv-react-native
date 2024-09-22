@@ -30,61 +30,39 @@ type Props = {
 const WebViewPage: React.FC<Props> = ({route}) => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const {token, userStatus, url} = route.params;
-  const [webviewUrl, setWebviewUrl] = useState(REACT_APP_WEB);
-
+  console.log('🚀  url:', url);
+  const webViewRef = useRef<WebView>(null);
   const injectedJavaScript = `
     localStorage.setItem("accessToken", "${token}");
     localStorage.setItem("userStatus", "${userStatus}");
     true;
   `;
 
-  // useEffect(() => {
-  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
-  //     console.log(remoteMessage);
-  //     pushNoti.displayNoti(remoteMessage); // 위에서 작성한 함수로 넘겨준다
-  //   });
-  //   return unsubscribe;
-  // }, []);
-
   useEffect(() => {
     // Foreground에서 메시지 수신
     const unsubscribeOnMessage = messaging().onMessage(remoteMessage => {
-      console.log('Foreground message:', remoteMessage);
-      // 알림 표시 (자신의 알림 표시 로직으로 변경)
       pushNoti.displayNoti(remoteMessage);
     });
 
-    const unsubscribeOnNotificationOpenedApp =
-      messaging().onNotificationOpenedApp(async remoteMessage => {
-        const {data} = remoteMessage;
-        console.log('Notification opened:', data);
-
-        if (data) {
-          setWebviewUrl(`${REACT_APP_WEB}${convertPushUrl(data)}`);
-        }
-      });
+    const unsubscribeNotifee = notifee.onForegroundEvent(({type, detail}) => {
+      if (
+        type === EventType.PRESS &&
+        detail.notification &&
+        webViewRef.current
+      ) {
+        const data = detail.notification.data;
+        const newUrl = convertPushUrl(data);
+        webViewRef.current.injectJavaScript(
+          `window.location.href = "${newUrl}"`,
+        );
+      }
+    });
 
     return () => {
       unsubscribeOnMessage();
-      unsubscribeOnNotificationOpenedApp();
+      unsubscribeNotifee();
     };
   }, []);
-
-  useEffect(() => {
-    return notifee.onForegroundEvent(({type, detail}) => {
-      switch (type) {
-        case EventType.DISMISSED:
-          console.log('User dismissed notification', detail.notification);
-          break;
-        case EventType.PRESS:
-          console.log('User pressed notification', detail.notification);
-          break;
-      }
-    });
-  }, []);
-
-  // const [selectedImage, setSelectedImage] = useState(null);
-  const webViewRef = useRef<WebView>(null);
 
   const handleWebViewMessage = (event: WebViewMessageEvent) => {
     const {data} = event.nativeEvent;
@@ -126,12 +104,12 @@ const WebViewPage: React.FC<Props> = ({route}) => {
       console.log(message);
       removeKey(LocalStorageKey.JWT_TOKEN);
       removeKey(LocalStorageKey.UserStatus);
-      navigation.navigate('Home');
+      navigation.navigate('Home', {notificationUrl: undefined});
     }
     if (message.type === 'withdraw') {
       console.log(message);
       removeTokens();
-      navigation.navigate('Home');
+      navigation.navigate('Home', {notificationUrl: undefined});
     }
   };
 
@@ -177,7 +155,7 @@ const WebViewPage: React.FC<Props> = ({route}) => {
     <View style={{flex: 1}}>
       <WebView
         ref={webViewRef}
-        source={{uri: webviewUrl}}
+        source={{uri: url ? url : REACT_APP_WEB}}
         injectedJavaScript={injectedJavaScript}
         style={{flex: 1}}
         scrollEnabled={false}
@@ -187,5 +165,4 @@ const WebViewPage: React.FC<Props> = ({route}) => {
     </View>
   );
 };
-
 export default WebViewPage;

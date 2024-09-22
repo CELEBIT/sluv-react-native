@@ -10,11 +10,11 @@ import {
   Text,
   View,
 } from 'react-native';
-import * as KakaoLogin from '@react-native-seoul/kakao-login';
 import auth from '@react-native-firebase/auth';
+import * as KakaoLogin from '@react-native-seoul/kakao-login';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import LoginService from '../api/Login/LoginServices';
-import {REACT_APP_WEB} from '@env';
+
 import {
   setJwtToken,
   setUserStatus,
@@ -24,115 +24,172 @@ import {
   getUserStatus,
   // setFCMData,
 } from '../services/localStorage/localStorage';
-import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
+import {
+  useNavigation,
+  CompositeNavigationProp,
+  useRoute,
+} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from './page.type';
 import messaging from '@react-native-firebase/messaging';
-import {convertPushUrl} from '../utils/pushNoti';
+import {RouteProp} from '@react-navigation/native';
+
+// import {convertPushUrl} from '../utils/pushNoti';
+type HomeRouteProp = RouteProp<RootStackParamList, 'Home'>;
 
 export type HomeScreenNavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<RootStackParamList, 'Home'>,
   NativeStackNavigationProp<RootStackParamList>
 >;
 
-let backgroundURL = '';
-messaging().setBackgroundMessageHandler(async remoteMessage => {
-  console.log('🚀 setBackgroundMessageHandler:', remoteMessage);
-  if (remoteMessage?.data) {
-    backgroundURL = `${REACT_APP_WEB}${convertPushUrl(remoteMessage)}`;
-  }
-});
 const Home = () => {
   const socialLogin = new LoginService();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [recentMethod, setRecentMethod] = useState<string | null>(null);
-  const [url, setUrl] = useState(backgroundURL ?? '');
+  const route = useRoute<HomeRouteProp>();
+  const {notificationUrl} = route.params;
+
   // Fcm 토큰
   async function getFCMToken() {
     const token = await messaging().getToken();
     console.log('fcm token : ', token);
     return token;
   }
-
-  // 카카오 로그인
-  const signInWithKakao = async (): Promise<void> => {
+  // 공통 로그인 처리 함수
+  const handleSocialLogin = async (
+    accessToken: string,
+    snsType: 'KAKAO' | 'GOOGLE',
+  ): Promise<void> => {
     try {
-      const result = await KakaoLogin.login();
-      console.log(result);
       const fcmToken = await getFCMToken();
       const response = await socialLogin.socialLogin({
-        accessToken: result.accessToken,
-        snsType: 'KAKAO',
+        accessToken,
+        snsType,
         fcm: fcmToken,
       });
       const loginData = response.result;
       if (loginData) {
         setJwtToken(loginData.token);
         setUserStatus(loginData.userStatus);
-        setLoginMethod('KAKAO');
-        setRecentMethod('KAKAO');
+        setLoginMethod(snsType);
+        setRecentMethod(snsType);
         navigation.navigate('WebViewPage', {
           token: loginData.token,
           userStatus: loginData.userStatus,
-          url: url ?? undefined,
+          url: notificationUrl ?? undefined,
         });
       }
     } catch (err) {
-      // loginError();
-      console.log(err);
+      console.log(`${snsType} login error:`, err);
     }
   };
+
+  // 카카오 로그인
+  const signInWithKakao = async (): Promise<void> => {
+    try {
+      const result = await KakaoLogin.login();
+      await handleSocialLogin(result.accessToken, 'KAKAO');
+    } catch (err) {
+      console.log('Kakao login error:', err);
+    }
+  };
+
   // 구글 로그인
   const signInWithGoogle = async (): Promise<void> => {
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      // firebase 로그인 확인 및 GA용로그인 Start
       const googleCredential = auth.GoogleAuthProvider.credential(
         userInfo.idToken,
       );
       await auth().signInWithCredential(googleCredential);
-      //firebase 로그인 확인 및 GA용로그인 End
-
-      // SLUV 회원가입
-      try {
-        const fcmToken = await getFCMToken();
-        const data = {
-          accessToken: userInfo.idToken ?? '',
-          snsType: 'GOOGLE',
-          fcm: fcmToken,
-        };
-        const response = await socialLogin.socialLogin(data);
-        const loginData = response.result;
-        if (loginData) {
-          setJwtToken(loginData.token);
-          setUserStatus(loginData.userStatus);
-          setLoginMethod('GOOGLE');
-          setRecentMethod('GOOGLE');
-          navigation.navigate('WebViewPage', {
-            token: loginData.token,
-            userStatus: loginData.userStatus,
-            url: url ?? undefined,
-          });
-        }
-      } catch (err) {
-        console.log(err);
-      }
+      await handleSocialLogin(userInfo.idToken ?? '', 'GOOGLE');
     } catch (err) {
-      console.error('Google login err', err);
+      console.error('Google login error:', err);
     }
   };
+  // // 카카오 로그인
+  // const signInWithKakao = async (): Promise<void> => {
+  //   try {
+  //     const result = await KakaoLogin.login();
+  //     console.log(result);
+  //     const fcmToken = await getFCMToken();
+  //     const response = await socialLogin.socialLogin({
+  //       accessToken: result.accessToken,
+  //       snsType: 'KAKAO',
+  //       fcm: fcmToken,
+  //     });
+  //     const loginData = response.result;
+  //     if (loginData) {
+  //       setJwtToken(loginData.token);
+  //       setUserStatus(loginData.userStatus);
+  //       setLoginMethod('KAKAO');
+  //       setRecentMethod('KAKAO');
+  //       navigation.navigate('WebViewPage', {
+  //         token: loginData.token,
+  //         userStatus: loginData.userStatus,
+  //         url: notificationUrl ?? undefined,
+  //       });
+  //     }
+  //   } catch (err) {
+  //     // loginError();
+  //     console.log(err);
+  //   }
+  // };
+  // // // 구글 로그인
+  // const signInWithGoogle = async (): Promise<void> => {
+  //   try {
+  //     await GoogleSignin.hasPlayServices();
+  //     const userInfo = await GoogleSignin.signIn();
+  //     // firebase 로그인 확인 및 GA용로그인 Start
+  //     const googleCredential = auth.GoogleAuthProvider.credential(
+  //       userInfo.idToken,
+  //     );
+  //     await auth().signInWithCredential(googleCredential);
+  //     //firebase 로그인 확인 및 GA용로그인 End
+
+  //     // SLUV 회원가입
+  //     try {
+  //       const fcmToken = await getFCMToken();
+  //       const data = {
+  //         accessToken: userInfo.idToken ?? '',
+  //         snsType: 'GOOGLE',
+  //         fcm: fcmToken,
+  //       };
+  //       const response = await socialLogin.socialLogin(data);
+  //       const loginData = response.result;
+  //       if (loginData) {
+  //         setJwtToken(loginData.token);
+  //         setUserStatus(loginData.userStatus);
+  //         setLoginMethod('GOOGLE');
+  //         setRecentMethod('GOOGLE');
+  //         navigation.navigate('WebViewPage', {
+  //           token: loginData.token,
+  //           userStatus: loginData.userStatus,
+  //           url: notificationUrl ?? undefined,
+  //         });
+  //       }
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   } catch (err) {
+  //     console.error('Google login err', err);
+  //   }
+  // };
 
   const autoLogin = async (): Promise<void> => {
     const response = await socialLogin.autoLogin();
     if (response.isSuccess) {
       const accessToken = await getJwtToken();
       const userStatus = await getUserStatus();
+      console.log(getFCMToken());
+      console.log('notificationUrl', notificationUrl);
       if (accessToken !== null && userStatus !== null) {
+        console.log('🚀  Home  notificationUrl:', notificationUrl);
         navigation.navigate('WebViewPage', {
           token: accessToken,
           userStatus: userStatus,
-          url: url ?? undefined,
+          url: notificationUrl ?? undefined,
         });
       }
     }
