@@ -13,6 +13,7 @@ request.interceptors.request.use(
   async config => {
     // 요청 성공 직전 호출됨
     const accessToken = await getJwtToken();
+    console.log('accessToken', accessToken);
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }

@@ -22,6 +22,7 @@ import {
   getLoginMethod,
   getJwtToken,
   getUserStatus,
+  setFCMToken,
   // setFCMData,
 } from '../services/localStorage/localStorage';
 import {
@@ -52,7 +53,6 @@ const Home = () => {
   // Fcm 토큰
   async function getFCMToken() {
     const token = await messaging().getToken();
-    console.log('fcm token : ', token);
     return token;
   }
   // 공통 로그인 처리 함수
@@ -62,15 +62,19 @@ const Home = () => {
   ): Promise<void> => {
     try {
       const fcmToken = await getFCMToken();
+      // console.log('fcm token : ', fcmToken);
+
       const response = await socialLogin.socialLogin({
         accessToken,
         snsType,
         fcm: fcmToken,
       });
       const loginData = response.result;
+      // console.log('loginData', loginData);
       if (loginData) {
         setJwtToken(loginData.token);
         setUserStatus(loginData.userStatus);
+        setFCMToken(fcmToken);
         setLoginMethod(snsType);
         setRecentMethod(snsType);
         navigation.navigate('WebViewPage', {
@@ -177,20 +181,45 @@ const Home = () => {
   //   }
   // };
 
+  // const autoLogin = async (): Promise<void> => {
+  //   const response = await socialLogin.autoLogin();
+  //   console.log('response', response);
+  //   if (response.isSuccess) {
+  //     const accessToken = await getJwtToken();
+  //     const userStatus = await getUserStatus();
+  //     console.log(getFCMToken());
+  //     console.log('notificationUrl', notificationUrl);
+  //     if (accessToken !== null && userStatus !== null) {
+  //       console.log('🚀  Home  notificationUrl:', notificationUrl);
+  //       navigation.navigate('WebViewPage', {
+  //         token: accessToken,
+  //         userStatus: userStatus,
+  //         url: notificationUrl ?? undefined,
+  //       });
+  //     }
+  //   }
+  // };
   const autoLogin = async (): Promise<void> => {
-    const response = await socialLogin.autoLogin();
-    if (response.isSuccess) {
-      const accessToken = await getJwtToken();
-      const userStatus = await getUserStatus();
-      console.log(getFCMToken());
-      console.log('notificationUrl', notificationUrl);
-      if (accessToken !== null && userStatus !== null) {
-        console.log('🚀  Home  notificationUrl:', notificationUrl);
-        navigation.navigate('WebViewPage', {
-          token: accessToken,
-          userStatus: userStatus,
-          url: notificationUrl ?? undefined,
-        });
+    const accessToken = await getJwtToken();
+    console.log('accessToken', accessToken);
+    const userStatus = await getUserStatus();
+    if (accessToken !== null && userStatus !== null) {
+      try {
+        const response = await socialLogin.autoLogin();
+        if (response.isSuccess) {
+          // const accessToken = await getJwtToken();
+          // const userStatus = await getUserStatus();
+          // if (accessToken !== null && userStatus !== null) {
+          // console.log('🚀  Home  notificationUrl:', notificationUrl);
+          navigation.navigate('WebViewPage', {
+            token: accessToken,
+            userStatus: userStatus,
+            url: notificationUrl ?? undefined,
+          });
+          // }
+        }
+      } catch (error) {
+        console.error('Auto login error:', error);
       }
     }
   };
@@ -198,6 +227,7 @@ const Home = () => {
   useEffect(() => {
     const checkLoginMethod = async () => {
       const method = await getLoginMethod();
+      console.log(method);
       if (method) {
         setRecentMethod(method);
         await autoLogin();

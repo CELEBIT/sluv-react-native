@@ -5,6 +5,6 @@ export interface SocialLoginBody {
 }
 
 export interface SocialLoginResult {
-  token: String;
   userStatus: String;
+  fcm: String;
 }
