@@ -39,7 +39,6 @@ const WebViewPage: React.FC<Props> = ({route}) => {
   `;
 
   useEffect(() => {
-    // Foreground에서 메시지 수신
     const unsubscribeOnMessage = messaging().onMessage(remoteMessage => {
       pushNoti.displayNoti(remoteMessage);
     });
