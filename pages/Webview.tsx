@@ -39,8 +39,8 @@ const WebViewPage: React.FC<Props> = ({route}) => {
   `;
 
   useEffect(() => {
-    const unsubscribeOnMessage = messaging().onMessage(remoteMessage => {
-      pushNoti.displayNoti(remoteMessage);
+    const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
+      await pushNoti.displayNoti(remoteMessage);
     });
 
     const unsubscribeNotifee = notifee.onForegroundEvent(({type, detail}) => {
